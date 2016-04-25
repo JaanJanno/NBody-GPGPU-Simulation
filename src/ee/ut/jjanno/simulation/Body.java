@@ -15,6 +15,17 @@ public class Body implements Drawable{
 	public Color color = new Color(255, 185, (int) (Math.random() * 155));
 	public Color fillColor = new Color(255, 185, (int)(Math.random()*155));
 	
+	
+	
+	public Body clone() {
+		Body clone = new Body(x, y, 0);
+		clone.filled = filled;
+		clone.color = color;
+		clone.fillColor = fillColor;
+		clone.size = size;
+		return clone;
+	}
+
 	public Body(float x, float y, float mass) {
 		super();
 		this.x = x;
@@ -57,14 +68,14 @@ public class Body implements Drawable{
 	}
 
 	@Override
-	public void draw(Graphics g, int xref, int yref) {
+	public void draw(Graphics g, int xref, int yref, float zoom) {
 		int size = (int)this.size;	
 		g.setColor(color);			
-		g.drawRect((int)x - xref - size/2, (int)y - yref - size/2, size, size);
+		g.drawRect((int)(x*zoom - xref - size/2), (int)(y*zoom - yref - size/2), size, size);
 		
 		if(filled) {
 			g.setColor(fillColor);	
-			g.fillRect((int)x - xref - size/2 + 1, (int)y - yref - size/2 + 1, size - 1, size - 1);
+			g.fillRect((int)(x*zoom) - xref - size/2 + 1, (int)(y*zoom) - yref - size/2 + 1, size - 1, size - 1);
 		}
 	}
 

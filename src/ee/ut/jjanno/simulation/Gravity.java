@@ -2,7 +2,8 @@ package ee.ut.jjanno.simulation;
 
 public class Gravity {
 
-	public static final float G = 6.67f;
+	public static final float GModifier = 10f;
+	public static final float G = 6.67f * GModifier;
 	static final float wall = 1.0f;
 
 	public static float compute(float mass1, float mass2, float dist) {

@@ -4,21 +4,23 @@ import com.amd.aparapi.Kernel;
 
 class GravitySystemAdvancedKernel extends Kernel {
 
-	private static final float CUTOFF = 0f;
+	private static final float CUTOFF = 0.5f;
 
 	private float[] points;
 	private float[] tree;
 	private int[] treeStack;
+	private int[] params = {0};
 
 	@Override
 	public void run() {
 		int pointIndex = getGlobalId() * 7;
 		points[pointIndex + 4] = 0;
 		points[pointIndex + 5] = 0;
-
-		int stackPointer = 0;
-		treeStack[0] = 1;
-		while (stackPointer >= 0) {
+		
+		int initStack = (params[0] / getGlobalSize()) * getGlobalId();
+		int stackPointer = initStack;
+		treeStack[initStack] = 1;
+		while (stackPointer >= initStack) {
 			int stackedPointer = treeStack[stackPointer];
 			if (stackedPointer == 0) {
 				stackPointer--;
@@ -104,5 +106,9 @@ class GravitySystemAdvancedKernel extends Kernel {
 	public void setTreeStack(int[] treeStack) {
 		this.treeStack = treeStack;
 	}
+
+	public void setParams(int stackSize) {
+		this.params[0] = stackSize;
+	}	
 
 }
