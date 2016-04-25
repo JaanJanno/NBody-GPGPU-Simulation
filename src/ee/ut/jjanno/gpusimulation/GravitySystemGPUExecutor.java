@@ -22,7 +22,9 @@ public class GravitySystemGPUExecutor {
 
 	public static void execute(List<Body> bodies) {
 		kernel.setPoints(parametrizeBodies(bodies));
-		kernel.execute(bodies.size());
+		kernel.setRefPoints(parametrizeBodies(bodies));
+		kernel.setRealSize(bodies.size());
+		kernel.execute(getClosestSize(bodies.size()));
 		deParametrizeBodies(kernel.getPoints(), bodies);
 	}
 
@@ -40,31 +42,18 @@ public class GravitySystemGPUExecutor {
 	}
 	
 	public static void executeAdvancedPlus(List<Body> bodies) {
-		long start = System.currentTimeMillis();
 		float[] extremes = View.getExtremes(bodies);
 		IndexSequence seq = new IndexSequence(1);
 		BodyTree tree = new BodyTree(bodies, seq, extremes[0], extremes[1], extremes[2], extremes[3], false);
-		
-		long startT = System.currentTimeMillis();
-		System.out.print("Tree: ");
-		System.out.println(startT - start);
-		
 		kernelAdvancedPlus.setPoints(parametrizeBodies(bodies));
 		kernelAdvancedPlus.setTree(parametrizeTreeAdvanced(tree, seq.getLastIndex()));
-		kernelAdvancedPlus.execute(bodies.size());
-		
-		long startC = System.currentTimeMillis();
-		System.out.print("Compute: ");
-		System.out.println(startC - startT);
-		
+		kernelAdvancedPlus.setRealSize(bodies.size());	
+		kernelAdvancedPlus.execute(getClosestSize(bodies.size()));	
 		deParametrizeBodies(kernelAdvancedPlus.getPoints(), bodies);
-		
-		long startD = System.currentTimeMillis();
-		System.out.print("Unpack: ");
-		System.out.println(startD - startC);
-		
-		System.out.print("Total: ");
-		System.out.println(System.currentTimeMillis() - start);
+	}
+	
+	private static int getClosestSize(int size) {
+		return (int)(Math.pow(2, (int)(Math.log(size) / Math.log(2))+1));
 	}
 
 	private static float[] parametrizeBodies(List<Body> bodies) {
@@ -82,7 +71,7 @@ public class GravitySystemGPUExecutor {
 
 	private static List<Body> deParametrizeBodies(float[] bodyArray, List<Body> bodies) {
 		List<Body> bodyList = new ArrayList<Body>();
-		for (int i = 0; i < bodyArray.length; i += 7) {
+		for (int i = 0; i < bodies.size() * 7; i += 7) {
 			Body b = bodies.get(i / 7);
 			b.x = bodyArray[i];
 			b.y = bodyArray[i + 1];

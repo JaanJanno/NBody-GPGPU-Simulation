@@ -26,6 +26,8 @@ import ee.ut.jjanno.simulation.GravitySystem;
 public class View extends JPanel implements KeyListener {
 
 	private static final int INIT_BODIES = 5000;
+	private static final int FPS_CLAMP = 10;
+	
 	Lock bLock = new ReentrantLock();
 	List<Body> bodies;
 
@@ -33,6 +35,12 @@ public class View extends JPanel implements KeyListener {
 	public Body reference;
 	float zoom = 1.0f;
 	boolean qTreeVisualize = false;
+	
+	private float computeTime = 0f;
+	
+	private double fps = 0;
+	private long lastFrame;
+	private int cyc = 1;
 
 	private static List<Float> rays = new ArrayList<>();
 
@@ -46,6 +54,7 @@ public class View extends JPanel implements KeyListener {
 	}
 
 	boolean runs = true;
+	
 
 	public View() {
 		super();
@@ -178,10 +187,11 @@ public class View extends JPanel implements KeyListener {
 
 			long start = System.currentTimeMillis();
 
-			// CollisionSystem.simulate(bodies, this);
 			if (runs) {
 				bLock.lock();
+				long startC = System.currentTimeMillis();
 				GravitySystemGPUExecutor.executeAdvancedPlus(bodies);
+				computeTime = System.currentTimeMillis() - startC;
 
 				List<Body> newDrawables = new ArrayList<Body>();
 				for (Body b : bodies) {
@@ -191,15 +201,9 @@ public class View extends JPanel implements KeyListener {
 				bLock.unlock();
 			}
 
-			/*
-			 * GravitySystem.simulate(bodies); for (Body b : bodies) {
-			 * b.update(); }
-			 */
-			// System.out.println(reference.x);
-
 			repaint();
 			try {
-				Thread.sleep(Math.max(0, 20 - (System.currentTimeMillis() - start)));
+				Thread.sleep(Math.max(0, 16 - (System.currentTimeMillis() - start)));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -255,7 +259,7 @@ public class View extends JPanel implements KeyListener {
 
 				g.drawLine((int) xWallL, (int) yCentre, (int) xWallR, (int) yCentre);
 				g.drawLine((int) xCentre, (int) yWallT, (int) xCentre, (int) yWallB);
-				((Graphics2D) g).drawString("QTree nodes: " + Integer.toString(seq.getLastIndex()), 10, 40);
+				((Graphics2D) g).drawString("QTree nodes: " + Integer.toString(seq.getLastIndex()), 10, 80);
 			}
 			rays.clear();
 		}
@@ -266,7 +270,17 @@ public class View extends JPanel implements KeyListener {
 		}
 
 		((Graphics2D) g).drawString("Zoom: " + Float.toString(zoom), 10, 20);
-
+		((Graphics2D) g).drawString("Compute time: " + Float.toString(computeTime), 10, 40);
+		
+		if(cyc % FPS_CLAMP == 0) {
+			long thisFrame = System.nanoTime();
+			fps = 1.0 / (thisFrame - lastFrame)  * 1000000000 * FPS_CLAMP;
+			lastFrame = thisFrame;
+			
+		}
+		
+		((Graphics2D) g).drawString("Fps: " + Double.toString(fps), 10, 60);
+		cyc++;
 	}
 
 	@Override
@@ -277,11 +291,11 @@ public class View extends JPanel implements KeyListener {
 
 		if (e.getKeyChar() == 'k') {
 
-			float xoffset = 1000;
-			float yoffset = 9000;
+			float xoffset = 1500;
+			float yoffset = 7000;
 
 			float xvoffset = 0f;
-			float yvoffset = -4f;
+			float yvoffset = -2f;
 
 			float cMass = 120f;
 

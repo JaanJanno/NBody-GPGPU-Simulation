@@ -69,7 +69,7 @@ public class Body implements Drawable{
 
 	@Override
 	public void draw(Graphics g, int xref, int yref, float zoom) {
-		int size = (int)this.size;	
+		int size = (int)this.size;
 		g.setColor(color);			
 		g.drawRect((int)(x*zoom - xref - size/2), (int)(y*zoom - yref - size/2), size, size);
 		

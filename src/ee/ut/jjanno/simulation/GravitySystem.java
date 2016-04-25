@@ -19,7 +19,13 @@ public class GravitySystem {
 				b2.accelerate(-xb, -yb);
 			}
 		}
+		for(Body b: bodies)
+			b.update();
 
+	}
+	
+	public static void generateOrbitals(List<Body> bodies, int n, float refx, float refy, float orbitIn, float orbitOut) {
+		generateOrbitals(bodies, n, refx, refy, orbitIn, orbitOut, Color.black, Color.black, 0, 0, 120f);
 	}
 	
 	public static void generateOrbitals(List<Body> bodies, int n, float refx, float refy, float orbitIn, float orbitOut,

@@ -4,7 +4,7 @@ public class Gravity {
 
 	public static final float GModifier = 10f;
 	public static final float G = 6.67f * GModifier;
-	static final float wall = 1.0f;
+	public static final float wall = 30.0f;
 
 	public static float compute(float mass1, float mass2, float dist) {
 		return (G * mass1 * mass2) / (dist * dist);
@@ -15,8 +15,8 @@ public class Gravity {
 		if (dist == 0) {
 			return new float[] { 0, 0 };
 		}
-		float force = compute(mass1, mass2, dist);
-		float ratio = force / dist;
+		float force = compute(mass1, mass2, dist + wall);
+		float ratio = force / (dist + wall);
 		return new float[] { computeComponent(x1, x2, ratio), computeComponent(y1, y2, ratio) };
 	}
 
