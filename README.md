@@ -9,12 +9,12 @@ Requires Aparapi system library from following link:
 https://github.com/aparapi/aparapi
 Add the appropriate "dll" file for windows or "so" for linux to system libray folder.
 
-Visualization controlls:
+Visualization controls:
 
 Mouse wheel for zoom
 
-Left click to create body, drag to creat a body with initialized speed (longer drag - higher velocity).
+Left click to create body, drag to create a body with initialized speed (longer drag - higher velocity).
 
-Space to visualize Barnes-Hut tree.
+Spacebar to visualize Barnes-Hut tree.
 
 Right click on a body to set it as the camera's frame of reference.
