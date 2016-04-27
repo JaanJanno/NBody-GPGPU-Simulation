@@ -190,7 +190,7 @@ public class View extends JPanel implements KeyListener {
 			if (runs) {
 				bLock.lock();
 				long startC = System.currentTimeMillis();
-				GravitySystemGPUExecutor.executeAdvancedPlus(bodies);
+				GravitySystemGPUExecutor.executeAdvancedPlusParallelTree(bodies);
 				computeTime = System.currentTimeMillis() - startC;
 
 				List<Body> newDrawables = new ArrayList<Body>();

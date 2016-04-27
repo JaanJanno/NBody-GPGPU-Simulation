@@ -52,6 +52,18 @@ public class GravitySystemGPUExecutor {
 		deParametrizeBodies(kernelAdvancedPlus.getPoints(), bodies);
 	}
 	
+	public static void executeAdvancedPlusParallelTree(List<Body> bodies) {
+		float[] extremes = View.getExtremes(bodies);
+		IndexSequence seq = new IndexSequence(1);
+		BodyTreeParallel tree = new BodyTreeParallel(bodies, extremes[0], extremes[1], extremes[2], extremes[3]);
+		tree.index(seq);	
+		kernelAdvancedPlus.setPoints(parametrizeBodies(bodies));
+		kernelAdvancedPlus.setTree(parametrizeTreeAdvanced(tree, seq.getLastIndex()));
+		kernelAdvancedPlus.setRealSize(bodies.size());	
+		kernelAdvancedPlus.execute(getClosestSize(bodies.size()));	
+		deParametrizeBodies(kernelAdvancedPlus.getPoints(), bodies);
+	}
+	
 	private static int getClosestSize(int size) {
 		return (int)(Math.pow(2, (int)(Math.log(size) / Math.log(2))+1));
 	}
@@ -89,6 +101,12 @@ public class GravitySystemGPUExecutor {
 	}
 	
 	private static float[] parametrizeTreeAdvanced(BodyTree tree, int size) {
+		float[] treeArray = new float[size * 9];
+		fillTreeAdvanced(tree, treeArray);
+		return treeArray;
+	}
+	
+	private static float[] parametrizeTreeAdvanced(BodyTreeParallel tree, int size) {
 		float[] treeArray = new float[size * 9];
 		fillTreeAdvanced(tree, treeArray);
 		return treeArray;
@@ -132,6 +150,44 @@ public class GravitySystemGPUExecutor {
 	}
 	
 	private static void fillTreeAdvanced(BodyTree tree, float[] treeArray) {
+		int pointer = (tree.index-1) * 9;
+		treeArray[pointer] = tree.x;
+		treeArray[pointer + 1] = tree.y;
+		treeArray[pointer + 2] = tree.mass;
+		treeArray[pointer + 7] = tree.width;
+		treeArray[pointer + 8] = tree.parent;
+
+		if (tree.lt != null) {
+			treeArray[pointer + 3] = tree.lt.index;
+			fillTreeAdvanced(tree.lt, treeArray);
+		} else {
+			treeArray[pointer + 3] = 0;
+		}
+		
+		if (tree.lb != null) {
+			treeArray[pointer + 4] = tree.lb.index;
+			fillTreeAdvanced(tree.lb, treeArray);
+		} else {
+			treeArray[pointer + 4] = 0;
+		}
+		
+		if (tree.rt != null) {
+			treeArray[pointer + 5] = tree.rt.index;
+			fillTreeAdvanced(tree.rt, treeArray);
+		} else {
+			treeArray[pointer + 5] = 0;
+		}
+		
+		if (tree.rb != null) {
+			treeArray[pointer + 6] = tree.rb.index;
+			fillTreeAdvanced(tree.rb, treeArray);
+		} else {
+			treeArray[pointer + 6] = 0;
+		}
+
+	}
+	
+	private static void fillTreeAdvanced(BodyTreeParallel tree, float[] treeArray) {
 		int pointer = (tree.index-1) * 9;
 		treeArray[pointer] = tree.x;
 		treeArray[pointer + 1] = tree.y;

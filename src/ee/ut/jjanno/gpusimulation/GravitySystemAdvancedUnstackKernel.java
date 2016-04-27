@@ -26,62 +26,74 @@ class GravitySystemAdvancedUnstackKernel extends Kernel {
 
 			while (vertex != 0) {
 				int vertexPointer = (vertex - 1) * 9;
-				int pointer1 = (int) tree[vertexPointer + 3];
-				int pointer2 = (int) tree[vertexPointer + 4];
-				int pointer3 = (int) tree[vertexPointer + 5];
-				int pointer4 = (int) tree[vertexPointer + 6];
-				boolean lock = false;
+				boolean open = true;
 
-				if (vertex == traversed) {
+				if (vertex != traversed) {
+					open = false;
+					int pointer2 = (int) tree[vertexPointer + 4];
+					if (pointer2 > traversed && pointer2 != 0) {
+						vertex = pointer2;
+						traversed = vertex;
+					} else {
+						int pointer3 = (int) tree[vertexPointer + 5];
+						if (pointer3 > traversed && pointer3 != 0) {
+							vertex = pointer3;
+							traversed = vertex;
+						} else {
+							int pointer4 = (int) tree[vertexPointer + 6];
+							if (pointer4 > traversed && pointer4 != 0) {
+								vertex = pointer4;
+								traversed = vertex;
+							} else {
+								vertex = (int) tree[vertexPointer + 8];
+							}
+						}
+					}
+				} 
+				if (open && vertex == traversed) {
 					float x1 = points[pointIndex];
 					float y1 = points[pointIndex + 1];
-					float m1 = points[pointIndex + 6];
-
 					float x2 = tree[vertexPointer];
-					float y2 = tree[vertexPointer + 1];
-					float m2 = tree[vertexPointer + 2];
+					float y2 = tree[vertexPointer + 1];				
 
 					float d = tree[vertexPointer + 7];
 
-					float distance = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+					float sqDistance = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
 
-					if (distance != 0 && d / distance <= CUTOFF) {
-						computeAccelerationVector(m1, m2, x1, y1, x2, y2, pointIndex, distance);
+					if (sqDistance != 0 && (d * d) / sqDistance <= CUTOFF) {
+						float m1 = points[pointIndex + 6];
+						float m2 = tree[vertexPointer + 2];
+						computeAccelerationVector(m1, m2, x1, y1, x2, y2, pointIndex, sqrt(sqDistance));
 						vertex = (int) tree[vertexPointer + 8];
-						lock = true;
 					} else {
-						if (pointer1 > traversed && pointer1 != 0) {
-							vertex = (int) tree[vertexPointer + 3];
-							traversed = vertex;
-						} else if (pointer2 > traversed && pointer2 != 0) {
-							vertex = (int) tree[vertexPointer + 4];
-							traversed = vertex;
-						} else if (pointer3 > traversed && pointer3 != 0) {
-							vertex = (int) tree[vertexPointer + 5];
-							traversed = vertex;
-						} else if (pointer4 > traversed && pointer4 != 0) {
-							vertex = (int) tree[vertexPointer + 6];
+						int pointer1 = (int) tree[vertexPointer + 3];
+						if (pointer1 > traversed) {
+							vertex = pointer1;
 							traversed = vertex;
 						} else {
-							vertex = (int) tree[vertexPointer + 8];
-							lock = true;
+							int pointer2 = (int) tree[vertexPointer + 4];
+							if (pointer2 > traversed) {
+								vertex = pointer2;
+								traversed = vertex;
+							} else {
+								int pointer3 = (int) tree[vertexPointer + 5];
+								if (pointer3 > traversed) {
+									vertex = pointer3;
+									traversed = vertex;
+								} else {
+									int pointer4 = (int) tree[vertexPointer + 6];
+									if (pointer4 > traversed) {
+										vertex = pointer4;
+										traversed = vertex;
+									} else {
+										vertex = (int) tree[vertexPointer + 8];
+									}
+								}
+							}
 						}
 					}
 				}
-				if (vertex != traversed && !lock) {
-					if (pointer2 > traversed && pointer2 != 0) {
-						vertex = (int) tree[vertexPointer + 4];
-						traversed = vertex;
-					} else if (pointer3 > traversed && pointer3 != 0) {
-						vertex = (int) tree[vertexPointer + 5];
-						traversed = vertex;
-					} else if (pointer4 > traversed && pointer4 != 0) {
-						vertex = (int) tree[vertexPointer + 6];
-						traversed = vertex;
-					} else {
-						vertex = (int) tree[vertexPointer + 8];
-					}
-				}
+
 			}
 			points[pointIndex + 2] += points[pointIndex + 4];
 			points[pointIndex + 3] += points[pointIndex + 5];
