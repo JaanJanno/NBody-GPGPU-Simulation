@@ -6,7 +6,7 @@ import ee.ut.jjanno.simulation.Gravity;
 
 class GravitySystemAdvancedUnstackDuoKernel extends Kernel {
 
-	private static final float CUTOFF = 0.5f;
+	private static final float CUTOFF = 0.25f;
 
 	private float[] points;
 	private float[] tree;

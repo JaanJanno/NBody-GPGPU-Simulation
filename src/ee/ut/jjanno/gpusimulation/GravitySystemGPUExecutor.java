@@ -57,13 +57,12 @@ public class GravitySystemGPUExecutor {
 	public static void executeAdvancedPlusParallelTree(List<Body> bodies) {
 		float[] extremes = View.getExtremes(bodies);
 		IndexSequence seq = new IndexSequence(1);
-		BodyTreeParallel tree = new BodyTreeParallel(bodies, extremes[0], extremes[1], extremes[2], extremes[3]);
-		tree.index(seq);
-		kernelAdvancedPlus.setPoints(parametrizeBodies(bodies));
+		BodyTreeParallel tree = new BodyTreeParallel(bodies, extremes[0], extremes[1], extremes[2], extremes[3], seq);
+		kernelAdvancedPlus.setBodies(bodies);
 		kernelAdvancedPlus.setTree(parametrizeTreeAdvanced(tree, seq.getLastIndex()));
 		kernelAdvancedPlus.setRealSize(bodies.size());
 		kernelAdvancedPlus.execute(getClosestSize(bodies.size()));
-		deParametrizeBodies(kernelAdvancedPlus.getPoints(), bodies);
+		kernelAdvancedPlus.getBodies(bodies);
 	}
 
 	public static void executeAdvancedPlusParallelTreeRefed(List<Body> bodies) {
@@ -72,10 +71,8 @@ public class GravitySystemGPUExecutor {
 		BodyTreeParallel tree = new BodyTreeParallel(bodies, extremes[0], extremes[1], extremes[2], extremes[3]);
 		tree.index(seq);
 		kernelAdvancedPlusDuo.setPoints(parametrizeBodies(bodies));
-
 		kernelAdvancedPlusDuo.setTree(parametrizeTreeAdvancedUnrefed(tree, seq.getLastIndex()));
 		kernelAdvancedPlusDuo.setRefs(parametrizeTreeIndex(tree, seq.getLastIndex()));
-
 		kernelAdvancedPlusDuo.setRealSize(bodies.size());
 		kernelAdvancedPlusDuo.execute(getClosestSize(bodies.size()));
 		deParametrizeBodies(kernelAdvancedPlusDuo.getPoints(), bodies);

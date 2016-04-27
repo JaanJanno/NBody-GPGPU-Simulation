@@ -24,6 +24,11 @@ public class BodyTreeParallel {
 	
 	int index;
 	int parent = 0;
+	
+	public BodyTreeParallel(List<Body> bodies, float xWallL, float xWallR, float yWallT, float yWallB, IndexSequence seq) {
+		this(bodies, xWallL, xWallR, yWallT, yWallB);
+		index(seq);
+	}
 
 	public BodyTreeParallel(List<Body> bodies, float xWallL, float xWallR, float yWallT, float yWallB) {
 		width = xWallR - xWallL;
